@@ -36,7 +36,7 @@ plugin/                   ChatGPT/Codex 技能插件源码（可选）
 scripts/ENI-check.js       只读自检
 scripts/ENI-sync.js        日常新增、查重、回读
 scripts/ENI-backup.js      本地只读备份（可选）
-scripts/ENI-beautify.js    旧标准纯文本卡原地美化（可选）
+scripts/ENI-beautify.js    旧标准纯文本卡只读预览，显式开启后单张美化（可选）
 examples/                 八章节、提示词及三类测试卡
 docs/guide.md             完整图文安装及使用教程
 docs/images/              工作流图与脱敏截图
@@ -47,13 +47,13 @@ LICENSE                   MIT 许可（项目代码和原创文档）
 
 ## 运行测试
 
-电脑端仅开发者需要 Node.js 20+，无需 npm 依赖：
+电脑端仅开发者需要 Node.js 24+，无需 npm 依赖：
 
 ```sh
 node --test tests/workflow.test.cjs
 ```
 
-手机用户不需要 Node.js，也不要把脚本直接运行在浏览器控制台。脚本依赖 HTTP Request Shortcuts 提供的 JS 接口。
+GitHub Actions 使用 Node.js 24 和当前稳定版 checkout/setup-node Action 自动运行这套离线测试。手机用户不需要 Node.js，也不要把脚本直接运行在浏览器控制台。脚本依赖 HTTP Request Shortcuts 提供的 JS 接口。
 
 ## 已验证与限制
 
@@ -61,6 +61,7 @@ node --test tests/workflow.test.cjs
 - 此公开版已移除固定账号/牌组 ID、旧牌组迁移逻辑及最小卡片数量条件。离线测试不等于所有新账号及客户端版本的真实验收，首次请使用空的私有测试牌组。
 - 当前是**用户确认的半自动同步**，不是后台监听聊天，也不是 ChatGPT 直接操作墨墨。只支持 Android 本地快捷方式；iOS 暂无对应实现。
 - 只支持规定格式的纯文本卡；查重为标准答案规范化匹配，并不识别所有同义句或非标准卡。没有自动清理、跨牌组迁移或删除功能。
+- 旧卡美化默认 `PREVIEW_ONLY=true`，只读展示修改前后内容，不调用写入接口；只有用户先备份、手动改为 `false` 并再次确认后才更新，每次默认最多一张。
 - 插件安装能力取决于账号和工作空间权限；普通提示词方案不需要 Plugin Creator。GitHub 开源不等于上架 ChatGPT 公共插件目录。
 
 ## 参考与致谢
