@@ -1,0 +1,13 @@
+# 本地凭证、配置和私人数据
+.env
+.env.*
+!.env.example
+*token*
+*secret*
+ENI-backup-*.json
+ENI-before-style-*.json
+*.local.json
+private/
+backups/
+node_modules/
+.DS_Store
