@@ -25,12 +25,12 @@ function main(){
  const batch=plan.slice(0,BATCH_LIMIT);
  const chapterOf=id=>{const ch=d.chapters.find(x=>x.card_ids.includes(id));return ch?ch.name:'章节未知';};
  const previewText=batch.map((x,i)=>{
-  const clip=s=>s.length>1200?s.slice(0,1200)+'\\n…（预览截断；原始卡片内容未改变）':s;
-  return '卡片 '+(i+1)+'/'+batch.length+'\\nID：'+x.id+'\\n章节：'+chapterOf(x.id)+'\\n--- 修改前 ---\\n'+clip(x.before)+'\\n--- 修改后 ---\\n'+clip(x.after);
- }).join('\\n\\n');
- showDialog('只读预览：本次计划更新 '+batch.length+' 张；当前总数 '+count+' 张。\\n已是新版 '+ready+' 张；尚待处理 '+plan.length+' 张。\\n\\n'+previewText+'\\n\\n预览模式不会调用写入接口，也不会创建备份。确认样式后，先备份，再将脚本顶部 PREVIEW_ONLY 改为 false，重新运行并在确认框中批准。','美化预览');
+  const clip=s=>s.length>1200?s.slice(0,1200)+'\n…（预览截断；原始卡片内容未改变）':s;
+  return '卡片 '+(i+1)+'/'+batch.length+'\nID：'+x.id+'\n章节：'+chapterOf(x.id)+'\n--- 修改前 ---\n'+clip(x.before)+'\n--- 修改后 ---\n'+clip(x.after);
+ }).join('\n\n');
+ showDialog('只读预览：本次计划更新 '+batch.length+' 张；当前总数 '+count+' 张。\n已是新版 '+ready+' 张；尚待处理 '+plan.length+' 张。\n\n'+previewText+'\n\n预览模式不会调用写入接口，也不会创建备份。确认样式后，先备份，再将脚本顶部 PREVIEW_ONLY 改为 false，重新运行并在确认框中批准。','美化预览');
  if(PREVIEW_ONLY)return;
- if(!confirm('你已关闭只读预览模式。\\n本次将原地更新 '+batch.length+' 张，保留卡片ID、章节和原答案。\\n请确认已完成独立备份。\\n确认继续？'))return;
+ if(!confirm('你已关闭只读预览模式。\n本次将原地更新 '+batch.length+' 张，保留卡片ID、章节和原答案。\n请确认已完成独立备份。\n确认继续？'))return;
  const dir=getDirectory('ENI');
  const filename='ENI-before-style-'+Date.now()+'.json';const snapshot=JSON.stringify({deck,...d});dir.writeFile(filename,snapshot);if(dir.readFile(filename)!==snapshot)throw Error('备份回读失败，未写入');
  let submitted=0;try{for(const x of batch){req('POST','/'+target+'/cards/'+x.id,{card:{content:x.after,grammar_version:3}});submitted++;}const v=state(), old=new Map(d.cards.map(c=>[c.id,c])), changed=new Map(batch.map(c=>[c.id,c.after]));if(v.cards.length!==count||v.chapters.some(ch=>JSON.stringify(ch.card_ids)!==JSON.stringify(d.chapters.find(z=>z.id===ch.id).card_ids)))throw Error('章节或数量变化');for(const c of v.cards){const prior=old.get(c.id);if(!prior||c.root_id!==prior.root_id||c.content!==(changed.has(c.id)?changed.get(c.id):prior.content))throw Error('回读内容或ID不一致，请检查备份');}}catch(e){throw Error('本批收到成功响应 '+submitted+' 张，未完成核验。'+e.message+'\n备份：'+filename);}
